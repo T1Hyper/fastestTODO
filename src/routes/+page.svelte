@@ -1,5 +1,18 @@
 <script>
     let todo2 = $state("");
+    let todolist = $state(
+    (() =>  {
+    try {
+        return JSON.parse(localStorage.getItem("todolist") ?? "[]");
+        } catch {
+                return [];
+                }
+            })()
+    );
+
+$effect(() => {
+  localStorage.setItem("todolist", JSON.stringify(todolist));
+});
 
     function pusher() {
         if (todo2 !== "") {
@@ -11,18 +24,6 @@
             todo2 = "";
         }
     }
-
-    const todolist = $state([]);
-    function pushni(parametr) {
-        let todo = prompt("co chceš v todo listu?");
-        parametr.push({
-            text: todo,
-            completed: false,
-            work: false,
-            personal: false,
-        });
-    }
-
     function RemoveTODO() {
         if(confirm("Chceš všechno zrušit?")){
             todolist.splice(0, todolist.length)
@@ -41,6 +42,7 @@
                 class="bg-black border-3 rounded-xl text-white placeholder:text-white p-1"
                 type="text"
                 bind:value={todo2}
+                onkeydown={(e) => e.key === "Enter" && pusher()}
                 placeholder="Zadej Úkol"/>
             <button class="border-3 rounded-2xl bg-green-400 p-1" onclick={pusher}
                 >Přidat</button>
@@ -69,24 +71,25 @@
                 <div
                     class="flex items-center text-white text-center divide-y-5 pl-10 font-sans"
                 >
+                    <button
+                        class="border-2 rounded py-1 mr-5 px-2 bg-green-800 text-green-300 hover:text-black"
+                        onclick={() => {
+                            item.completed = !item.completed;
+                        }}>Hotovo</button>
                     <li
                         class={[
                             "pt-5.5 pb-1.5 px-5 text-2xl text-center flex-1 mb-5",
                             item.completed
                                 ? " text-green-500"
-                                : " "]}>{item.text}</li>
-                    <li class={["pt-5.5 pb-1.5 px-0 text-2xl text-center flex-1 mb-5",
-                    item.type === "práce" &&
+                                : " "]}>
+                                <input class="min-w-150 max-w-150" type="text" bind:value={item.text} placeholder="{item.text}"></li>
+                    <li class={["pt-5.5 pb-1.5 px-0 text-2xl text-center flex-1 mb-5 min-w-25 max-w-25 text-gray-400",
+                                        item.type === "práce" &&
                                           "text-purple-400",
-                                      item.type === "osobní" &&
-                                          " text-yellow-400"]}
+                                        item.type === "osobní" &&
+                                          "text-yellow-400"]}
                     >[{item.type}]</li>
-                    <button
-                        class="border-2 rounded py-1 ml-5 mr-5 px-2 bg-green-800 text-green-300 hover:text-black"
-                        onclick={() => {
-                            item.completed = !item.completed;
-                        }}>Hotovo</button
-                    >
+                    
                     <button
                         class="min-w-20 max-w-20 border-2 rounded-2xl py-1 ml-5 px-2 bg-purple-800 text-purple-300 hover:text-black"
                         onclick={() => {
