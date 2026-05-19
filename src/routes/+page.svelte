@@ -1,86 +1,125 @@
-<style>
-@import "tailwindcss";
-.cislo{
-    color: rgb(255, 255, 255);
-    text-decoration: underline;
-    text-underline-offset: 1rem;
-    font-size: 4rem;
-    text-align: center;
-
-}
-.zadej{
-    text-align: center;
-    justify-content: center;
-    display: inline-block;
-    padding: 1rem 2rem 1rem 2rem;
-    border-radius: 15px;
-    margin-top: 2.5rem;
-}
-.pozadi
-{
-    background-color: rgb(10, 17, 77);
-    min-height: 100vh;
-    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-}
-</style>
 <script>
-    let cisloX = $state(0)
-    let cisloY = $state(0)
-    let vysledek = $state(0)
+    let todo2 = $state("");
 
-function zadej(){
-    const valueX = $state(prompt("napiš cislo X", cisloX.toString()));
-    cisloX = Number(valueX)
+    function pusher() {
+        if (todo2 !== "") {
+            todolist.push({
+                text: todo2,
+                completed: false,
+                type: "ostatní",
+            });
+            todo2 = "";
+        }
+    }
 
-    const valueY = $state(prompt("napiš cislo Y", cisloY.toString()));
-    cisloY = Number(valueY)
-
-    const inter = prompt("+,-,/,* ?", "+")
-    if (inter == "+")
-    {
-        vysledek = cisloX + cisloY
-    }
-    else if (inter == "-")
-    {
-        vysledek = cisloX - cisloY
-    }
-    else if (inter == "/")
-    {
-        vysledek = cisloX / cisloY
-    }
-    else(inter == "*")
-    {
-        vysledek = cisloX * cisloY
-    }
-}
     const todolist = $state([]);
-function pushni(parametr){
-   let todo = prompt("co chceš v todo listu?")
-    parametr.push(todo)
-}
+    function pushni(parametr) {
+        let todo = prompt("co chceš v todo listu?");
+        parametr.push({
+            text: todo,
+            completed: false,
+            work: false,
+            personal: false,
+        });
+    }
+
+    function RemoveTODO() {
+        if(confirm("Chceš všechno zrušit?")){
+            todolist.splice(0, todolist.length)
+        }
+    }
+    function RemoveTODO2(index) {
+        todolist.splice(index, 1);
+    }
 </script>
 
-<div class="pozadi">
-    
-    <div style="justify-content: center; display: flex">
-        <button class="border-5 rounded-full py-1.5 px-5 mt-9 bg-white" onclick={zadej}>zadej</button>
-    </div>
-    <h1 class="bg-blue-550 text-white text-center mt-6 text-5xl">výpočet je: {vysledek}</h1>
-    
-    <div style="justify-content: center; display: flex">
-        <button class="border-5 rounded-full py-1.5 px-5 mt-22 bg-white" onclick={() => pushni(todolist)}>přidej do TODO listu</button>
-    </div>
-    <style>
-        .ulko{
-            color: white;
-        }
-    </style>
-    <div class="text-center">
-        <ul class="inline-block border-collapse text-white text-center divide-y-5">
-            {#each todolist as item}
-            <li class="py-1.5 px-5 text-xl text-center">{item}</li>
-            {/each}
-        </ul>
-
+<div class="py-4 bg-blue-400">
+    <div class="item-center flex flex-row">
+        <p class="pl-5 text-5xl font-bold text-white font-impact">TODO LIST</p>
+        <div class="flex flex-1 justify-center gap-5">   
+            <input
+                class="bg-black border-3 rounded-xl text-white placeholder:text-white p-1"
+                type="text"
+                bind:value={todo2}
+                placeholder="Zadej Úkol"/>
+            <button class="border-3 rounded-2xl bg-green-400 p-1" onclick={pusher}
+                >Přidat</button>
+            <button class="border-3 rounded-2xl bg-red-400 p-1" onclick={RemoveTODO}
+                >Smazat vše</button>
+        </div>
     </div>
 </div>
+<div class="pozadi">
+<div class="flex">
+<div class="">
+<div class="px-5 pt-20 pb-150 border-5 m-10 rounded-4xl max-w-130 min-w-130 bg-blue-900">
+    <p class="text-center text-black text-5xl">Počet úkolů: {todolist.length-(todolist.filter(i => i.completed).length)}</p>
+    <p class="text-center text-3xl text-green-300 mt-16">Splněno úkolů: {todolist.filter(i => i.completed).length}</p>
+    <p class="text-center text-white text-3xl mt-6">Celkem: {todolist.length}</p>
+    <div class="flex flex-row justify-center gap-9">
+        <p class=" text-purple-400 text-3xl mt-6">Prace: {todolist.filter(i => i.type==="work").length}</p>
+        <p class=" text-white text-3xl mt-6">Ostatní: {todolist.filter(i => i.type==="ostatni").length}</p>
+        <p class=" text-yellow-400 text-3xl mt-6">Osobní: {todolist.filter(i => i.type==="personal").length}</p>
+    </div>
+</div>
+</div>
+    <div class="text-center">
+        <ul class="inline-block mt-3">
+            {#each todolist as item, index}
+                <div
+                    class="flex items-center text-white text-center divide-y-5 pl-10 font-sans"
+                >
+                    <li
+                        class={[
+                            "pt-5.5 pb-1.5 px-5 text-2xl text-center flex-1 mb-5",
+                            item.completed
+                                ? " text-green-500"
+                                : " "]}>{item.text}</li>
+                    <li class={["pt-5.5 pb-1.5 px-0 text-2xl text-center flex-1 mb-5",
+                    item.type === "práce" &&
+                                          "text-purple-400",
+                                      item.type === "osobní" &&
+                                          " text-yellow-400"]}
+                    >[{item.type}]</li>
+                    <button
+                        class="border-2 rounded py-1 ml-5 mr-5 px-2 bg-green-800 text-green-300 hover:text-black"
+                        onclick={() => {
+                            item.completed = !item.completed;
+                        }}>Hotovo</button
+                    >
+                    <button
+                        class="min-w-20 max-w-20 border-2 rounded-2xl py-1 ml-5 px-2 bg-purple-800 text-purple-300 hover:text-black"
+                        onclick={() => {
+                            item.type = "práce";
+                        }}>Práce</button
+                    >
+                    <button
+                        class="min-w-20 max-w-20 border-2 rounded-2xl py-1 ml-2 px-2 bg-gray-800 text-gray-300 hover:text-black"
+                        onclick={() => {
+                            item.type = "ostatní";
+                        }}>Ostatní</button
+                    >
+                    <button
+                        class="min-w-20 max-w-20 border-2 rounded-2xl py-1 ml-2 px-2 bg-yellow-800 text-yellow-300 hover:text-black"
+                        onclick={() => {
+                            item.type = "osobní";
+                        }}>Osobní</button
+                    >
+                    <button
+                        class="border-2 rounded py-1 ml-10 px-2 bg-red-800 text-red-200 hover:text-black"
+                        onclick={() => RemoveTODO2(index)}>Smazat</button
+                    >
+                </div>
+            {/each}
+        </ul>
+    </div>
+</div>
+</div>
+
+<style>
+    .pozadi {
+        background-color: rgb(10, 17, 77);
+        min-height: 100vh;
+        font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+    }
+</style>
